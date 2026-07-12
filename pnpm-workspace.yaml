@@ -102,6 +102,10 @@ minimumReleaseAgeExclude:
   - '@ai-sdk/openai@4.0.0'
   - '@ai-sdk/anthropic@4.0.0'
   - '@ai-sdk/google@4.0.0'
+  # Renovate security update: js-yaml@5.2.1
+  - js-yaml@5.2.1
+  # Renovate security update: minimatch@7.4.8
+  - minimatch@7.4.8
 trustPolicyExclude:
   # Security fix for GHSA middleware-based route protection bypass (CVE).
   # 3.47.4 is published with provenance attestation rather than trusted publisher,
@@ -127,7 +131,7 @@ overrides:
   client-js-e2e-tests-zod-v3>zod: ^3.24.0
   client-js-e2e-tests-zod-v4>zod: ^4.3.6
   better-auth: ^1.4.18
-  js-yaml: ^3.15.0
+  js-yaml: ^5.2.1
   glob@<=10.5.0: 10.5.0
   # image-size 2.x (incl. 2.0.2 latest) has unpatched DoS infinite-loop flaws
   # (CVE-2025-71330 / GHSA-w3rx-r6r6-pgpr). No fixed 2.x exists, so pin to the
@@ -149,7 +153,7 @@ overrides:
   axios@>=1.0.0 <1.16.0: 1.16.0
   protobufjs@>=7.0.0 <7.6.3: 7.6.3
   protobufjs@>=8.0.0 <8.6.0: 8.6.0
-  minimatch@>=5.0.0 <5.1.8: 5.1.8
+  minimatch@>=5.0.0 <5.1.8: 7.4.8
   minimatch@>=9.0.0 <9.0.7: 9.0.7
   ws@>=8.0.0 <8.21.0: 8.21.0
   webpack-dev-server@<5.2.5: 5.2.5
