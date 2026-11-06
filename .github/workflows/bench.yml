@@ -59,13 +59,21 @@ jobs:
       - name: Build
         if: steps.ci.outputs.already-passed != 'true'
         run: pnpm turbo build --filter ./stores/libsql --filter mastra --filter @mastra/memory
-  # A failed job must never be recorded as passed.
-  must-not-pass:
+  # Same Action without the install cache: tool caches and pass markers only.
+  ci-sdk-lean:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { run_install: false }
       - uses: actions/setup-node@v7
         with: { node-version: 24.22.1 }
       - id: ci
-        uses: ./.ci-sdk-action
-      - run: echo "already-passed=${{ steps.ci.outputs.already-passed }}"; exit 1
+        uses: ./.ci-sdk-lean
+      - name: Install
+        if: steps.ci.outputs.already-passed != 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        if: steps.ci.outputs.already-passed != 'true'
+        run: pnpm turbo build --filter ./stores/libsql --filter mastra --filter @mastra/memory
