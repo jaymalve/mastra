@@ -1,0 +1,71 @@
+name: ci-sdk bench
+on:
+  push:
+    branches: [ci-sdk-bench]
+permissions:
+  contents: read
+env:
+  NODE_OPTIONS: --max-old-space-size=8192
+  TURBO_CACHE: local:rw
+  TURBO_TELEMETRY_DISABLED: 1
+jobs:
+  # A typical team: no caching at all.
+  typical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { run_install: false }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24.22.1 }
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm turbo build --filter ./stores/libsql --filter mastra --filter @mastra/memory
+  # Mastra's own hand-tuned setup: pnpm store cache plus a turbo cache.
+  tuned:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { run_install: false, cache: true }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24.22.1 }
+      - uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: turbo-${{ runner.os }}-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm turbo build --filter ./stores/libsql --filter mastra --filter @mastra/memory
+  ci-sdk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { run_install: false }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24.22.1 }
+      - id: ci
+        uses: ./.ci-sdk-action
+      - name: Install
+        if: steps.ci.outputs.already-passed != 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        if: steps.ci.outputs.already-passed != 'true'
+        run: pnpm turbo build --filter ./stores/libsql --filter mastra --filter @mastra/memory
+  # A failed job must never be recorded as passed.
+  must-not-pass:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24.22.1 }
+      - id: ci
+        uses: ./.ci-sdk-action
+      - run: echo "already-passed=${{ steps.ci.outputs.already-passed }}"; exit 1
