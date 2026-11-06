@@ -7,3 +7,4 @@ export { LIBSQL_PROMPT } from './vector/prompt';
 // bench round 5
 // bench round 6
 // bench round 7
+// bench round 8
