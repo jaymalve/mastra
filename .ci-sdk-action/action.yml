@@ -1,5 +1,5 @@
 name: ci-sdk
-description: Stop CI repeating work. Restores installs and tool caches, and spots code that already passed.
+description: Stop CI repeating work. Restores tool caches and spots code that already passed.
 outputs:
   already-passed:
     description: "'true' when this exact code already passed this job. Add `if: steps.<id>.outputs.already-passed != 'true'` to later steps to skip them."
@@ -20,11 +20,6 @@ runs:
         path: ${{ steps.plan.outputs.pass_path }}
         key: ${{ steps.plan.outputs.pass_key }}
         lookup-only: true
-    - if: steps.plan.outputs.deps_key != '' && steps.passed.outputs.cache-hit != 'true'
-      uses: actions/cache@v6
-      with:
-        path: ${{ steps.plan.outputs.deps_paths }}
-        key: ${{ steps.plan.outputs.deps_key }}
     - if: steps.passed.outputs.cache-hit != 'true'
       uses: actions/cache@v6
       with:
